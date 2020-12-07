@@ -8,7 +8,15 @@ interface Props {
 const Home = ({ navigation }: Props) => {
   return (
     <View style={[styles.container, styles.center]}>
-      <Button title={'open test'} onPress={() => navigation.navigate('TestScreen')} />
+      <Button
+        title={'open test'}
+        onPress={() => navigation.navigate('TestScreen', { reverse: false })}
+      />
+      <View style={{marginBottom: 50}} />
+      <Button
+        title={'open reverse test'}
+        onPress={() => navigation.navigate('TestScreen', { reverse: true })}
+      />
     </View>
   );
 };
