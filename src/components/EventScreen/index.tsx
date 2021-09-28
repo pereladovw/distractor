@@ -1,23 +1,21 @@
 import React from 'react';
 import { StyleSheet, View, Button, Text } from 'react-native';
-import Cell, { CELL_HEIGHT, CELL_WIDTH } from './Cell';
+import Cell, { CELL_HEIGHT, CELL_WIDTH, OBJECT_RADIUS, OBJECT_TYPE, OBJECT_SHAPE_TYPE } from './Cell';
 
-export const OBJECT_RADIUS = 10;
+
 const DISTRACTORS_COUNT = 40;
 const TARGETS_COUNT = 40;
 const ROWS_COUNT = 8;
 const COLUMNS_COUNT = 10;
 
-export enum OBJECT_TYPE {
-  TARGET,
-  DISTRACTOR,
-}
+
 
 export interface ScreenObject {
   type: OBJECT_TYPE;
   cellX: number;
   cellY: number;
   colorIndex: number;
+  shapeType: OBJECT_SHAPE_TYPE;
 }
 
 export interface ScreenObjectData {
@@ -53,7 +51,7 @@ export default class EventScreen extends React.Component<{}, State> {
 
   // componentDidMount() {}
 
-  createArray() {
+  createArray(conjunction = false) {
     for (let i = 0; i < ROWS_COUNT; i++) {
       this.screenOgjects[i] = new Array(COLUMNS_COUNT).fill(null);
     }
@@ -84,12 +82,22 @@ export default class EventScreen extends React.Component<{}, State> {
 
         if (!cell) {
           const { x, y } = randomXY();
-          const colorIndex = randomColor();
+          let shapeType = OBJECT_SHAPE_TYPE.CIRCLE;
+          let colorIndex = 0;
+          if (conjunction) {
+            if (k >= DISTRACTORS_COUNT / 2) {
+              colorIndex = 1;
+              shapeType = OBJECT_SHAPE_TYPE.SQUARE
+            }
+          } else {
+            colorIndex = randomColor();
+          }
           this.screenOgjects[i][j] = {
             type: OBJECT_TYPE.DISTRACTOR,
             cellX: x,
             cellY: y,
             colorIndex,
+            shapeType
           };
           cellUpdated = true;
         }
@@ -104,12 +112,22 @@ export default class EventScreen extends React.Component<{}, State> {
         const cell = this.screenOgjects[i][j];
         if (!cell) {
           const { x, y } = randomXY();
-          const colorIndex = randomColor();
+          let shapeType = OBJECT_SHAPE_TYPE.CIRCLE;
+          let colorIndex = 1;
+          if (conjunction) {
+            if (k < DISTRACTORS_COUNT / 2) {
+              colorIndex = 0;
+              shapeType = OBJECT_SHAPE_TYPE.SQUARE
+            }
+          } else {
+            colorIndex = randomColor();
+          }
           this.screenOgjects[i][j] = {
             type: OBJECT_TYPE.TARGET,
             cellX: x,
             cellY: y,
             colorIndex,
+            shapeType
           };
           cellUpdated = true;
         }
@@ -119,7 +137,7 @@ export default class EventScreen extends React.Component<{}, State> {
 
   onStart() {
     this.pressedTargets = [];
-    this.createArray();
+    this.createArray(this.props.route.params?.conjunction);
     this.setState({ status: STATUS.started });
     this.startTime = new Date().getTime();
   }
@@ -147,6 +165,7 @@ export default class EventScreen extends React.Component<{}, State> {
           screenObject={this.screenOgjects[rowIndex][j]}
           onObjectPress={this.onObjectPress.bind(this)}
           reverse={this.props.route.params?.reverse}
+          conjunction={this.props.route.params?.conjunction}
         />
       );
     }
@@ -193,7 +212,7 @@ export default class EventScreen extends React.Component<{}, State> {
           );
         }
 
-        return <View style={[styles.container, styles.center, styles.screen ]}><View style={[{width: 1024, height: 768, backgroundColor: 'gray'}, styles.center]}>{workSpace}</View></View>;
+        return <View style={[styles.container, styles.center, styles.screen ]}><View style={[{width: 1024, height: 768, backgroundColor: 'white'}, styles.center]}>{workSpace}</View></View>;
       }
       default:
         return <View />;
@@ -205,7 +224,7 @@ export default class EventScreen extends React.Component<{}, State> {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   center: { justifyContent: 'center', alignItems: 'center' },
-  screen: { backgroundColor: 'black' },
+  screen: { backgroundColor: 'gray' },
   // SafeAreaView: { backgroundColor: 'black' },
   row: { flexDirection: 'row'},
 });

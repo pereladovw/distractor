@@ -1,11 +1,22 @@
 import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, View, Dimensions } from 'react-native';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
-import { OBJECT_TYPE, ScreenObject, OBJECT_RADIUS, ScreenObjectData } from './';
+import { ScreenObject, ScreenObjectData } from './';
 
 const { height, width } = Dimensions.get('screen');
 export const CELL_HEIGHT = (768 - 200) / 8;
 export const CELL_WIDTH = (1024 - 300) / 10;
+export const OBJECT_RADIUS = 10;
+
+export enum OBJECT_TYPE {
+  TARGET,
+  DISTRACTOR,
+}
+
+export enum OBJECT_SHAPE_TYPE {
+  CIRCLE,
+  SQUARE
+}
 
 export const BUTTOM_SIZE = (OBJECT_RADIUS + 8) * 2;
 
@@ -18,6 +29,7 @@ interface Props {
   screenObject?: ScreenObject | null;
   onObjectPress: (item: ScreenObjectData) => void;
   reverse: boolean;
+  conjunction: boolean
 }
 
 const Cell = (props: Props) => {
@@ -56,9 +68,9 @@ const Cell = (props: Props) => {
           <View
             ref={(ref) => (refView = ref)}
             style={[
-              styles.object,
+              props.screenObject.shapeType === OBJECT_SHAPE_TYPE.CIRCLE ? styles.object : styles.squareObject,
               {
-                backgroundColor: props.reverse
+                backgroundColor: props.conjunction ? COLORS2[props.screenObject.colorIndex] : props.reverse
                   ? props.screenObject.type === OBJECT_TYPE.DISTRACTOR
                     ? COLORS2[props.screenObject.colorIndex]
                     : COLORS1[props.screenObject.colorIndex]
@@ -89,6 +101,11 @@ const styles = StyleSheet.create({
     height: OBJECT_RADIUS * 2,
     width: OBJECT_RADIUS * 2,
     borderRadius: OBJECT_RADIUS,
+  },
+  squareObject: {
+    height: OBJECT_RADIUS * 2,
+    width: OBJECT_RADIUS * 2,
+    // borderRadius: OBJECT_RADIUS,
   },
   button: {
     height: BUTTOM_SIZE,

@@ -10,12 +10,16 @@ const Home = ({ navigation }: Props) => {
     <View style={[styles.container, styles.center]}>
       <Button
         title={'open test'}
-        onPress={() => navigation.navigate('TestScreen', { reverse: false })}
+        onPress={() => navigation.navigate('TestScreen', { reverse: false, conjunction: false })}
       />
       <View style={{marginBottom: 50}} />
       <Button
         title={'open reverse test'}
-        onPress={() => navigation.navigate('TestScreen', { reverse: true })}
+        onPress={() => navigation.navigate('TestScreen', { reverse: true, conjunction: false })}
+      />
+      <Button
+        title={'open conjuction test'}
+        onPress={() => navigation.navigate('TestScreen', { reverse: false, conjunction: true })}
       />
     </View>
   );
